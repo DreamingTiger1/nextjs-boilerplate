@@ -1,101 +1,123 @@
-import Image from "next/image";
+"use client";
+
+import {
+  Button,
+  Flex,
+  Layout,
+  Typography,
+  Image,
+  Statistic,
+  Space,
+  Row,
+  Col,
+  Spin,
+} from "antd";
+import { useEffect, useState } from "react";
+
+const { Header, Content } = Layout;
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [images, setImages] = useState<
+    {
+      url: string;
+      id: string;
+    }[]
+  >([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+  const fetchImages = async (page: number) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/images?page=${page}&limit=9`);
+      const data = await response.json();
+      setImages(images.concat(data.images));
+      setHasMore(data.images.length > 0);
+    } catch (error) {
+      console.error("Error fetching images:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchImages(page);
+  }, [page]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+          document.documentElement.offsetHeight - 250 &&
+        !loading &&
+        hasMore
+      ) {
+        setPage((prev) => prev + 1);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loading, hasMore]);
+
+  return (
+    <Layout className="w-[calc(50%-8px)] min-h-screen mx-auto">
+      <Header className="bg-transparent flex items-center border-b border-gray-200/80">
+        <Flex justify="space-between" align="center" className="w-full">
+          <Typography.Text italic strong className="text-2xl">
+            Instagram
+          </Typography.Text>
+          <Flex gap={8}>
+            <Button size="small" type="primary">
+              Log in
+            </Button>
+            <Button size="small" type="link">
+              Sign up
+            </Button>
+          </Flex>
+        </Flex>
+      </Header>
+      <Content className="flex-1 m-10">
+        <Flex align="center" gap={40}>
           <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            width={120}
+            height={120}
+            className="rounded-full object-cover border-2 border-gray-200/50"
+            preview={false}
+            src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <Flex vertical>
+            <Typography.Text className="text-lg">#housePlant</Typography.Text>
+            <Space>
+              <Statistic
+                value={10690626}
+                valueStyle={{ fontSize: "14px" }}
+              ></Statistic>
+              <Typography.Text type="secondary" className="text-base">
+                posts
+              </Typography.Text>
+            </Space>
+          </Flex>
+        </Flex>
+        <Flex vertical>
+          <Typography.Text type="secondary" className="text-base">
+            Top posts
+          </Typography.Text>
+          <Row gutter={[4, 0]}>
+            {images.map((aImage) => (
+              <Col key={aImage.id} span={8} >
+                <Image
+                  className="aspect-square object-cover"
+                  placeholder={<Spin />}
+                  preview={false}
+                  src={aImage.url}
+                  alt={`House plant image ${aImage.id}`}
+                />
+              </Col>
+            ))}
+          </Row>
+        </Flex>
+      </Content>
+    </Layout>
   );
 }
