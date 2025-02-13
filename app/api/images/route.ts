@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     limit,
     total,
     images:
-      Math.ceil(total / page) >= page
+      Math.ceil(total / limit) >= page
         ? Array.from(
             { length: limit * page > total ? total % limit : limit },
             (_, index) => ({
